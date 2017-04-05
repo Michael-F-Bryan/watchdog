@@ -17,8 +17,9 @@ const (
 )
 
 type Status struct {
-	State State
-	time  time.Time
+	State     State
+	Name      string
+	Timestamp time.Time
 }
 
 func main() {
@@ -44,22 +45,26 @@ func check(url string, wg *sync.WaitGroup) {
 
 // Checksite will get a respone and error from a url and return the status of it.
 // If any errors are encountered, expect 200, it's assumed that the site is down.
-func Checksite(url string) State {
+func Checksite(url string) Status {
+	status := Status{Name: url, Timestamp: time.Now()}
+
 	respone, err := http.Get(url)
 	// TODO: inspect what error the page returns
 	if err != nil {
-		return STATE_DOWN
+		status.State = STATE_DOWN
+		return status
 	}
 	if respone.StatusCode == 200 {
-		return STATE_UP
+		status.State = STATE_UP
 	} else {
-		return STATE_UNKNOWN
+		status.State = STATE_UNKNOWN
 	}
+
+	return status
 }
 
 // LogState will log a struct of the state of the url, and other important info
 // Just prints the struct but later on could save to a database.
-func LogState(state State, url string) {
-	now := time.Now()
-	fmt.Println(url, Status{State: state, time: now})
+func LogState(status Status, url string) {
+	fmt.Println(url, status)
 }
