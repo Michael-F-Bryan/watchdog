@@ -1,20 +1,29 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
-    "fmt"
-    "time"
+	"time"
 )
 
-type status struct {
-    state string
-    time time.Time
+// State is an enum which represents the current state of a resource.
+type State int
+
+const (
+	STATE_UP = iota
+	STATE_DOWN
+	STATE_UNKNOWN
+)
+
+type Status struct {
+	State State
+	time  time.Time
 }
 
 func main() {
-    // The urls that will be checked when run
-	urls := []string {
+	// The urls that will be checked when run
+	urls := []string{
 		"http://134.7.57.175:8090/",
 		"www.curtinmotorsport.com",
 	}
@@ -35,22 +44,22 @@ func check(url string, wg *sync.WaitGroup) {
 
 // Checksite will get a respone and error from a url and return the status of it.
 // If any errors are encountered, expect 200, it's assumed that the site is down.
-func Checksite(url string) (string) {
+func Checksite(url string) State {
 	respone, err := http.Get(url)
 	// TODO: inspect what error the page returns
 	if err != nil {
-		return "Down"
+		return STATE_DOWN
 	}
-    if respone.StatusCode == 200 {
-        return "Up"
-    } else {
-        return "Unknown"
+	if respone.StatusCode == 200 {
+		return STATE_UP
+	} else {
+		return STATE_UNKNOWN
 	}
 }
 
 // LogState will log a struct of the state of the url, and other important info
 // Just prints the struct but later on could save to a database.
-func LogState(state string, url string) {
-    now := time.Now()
-    fmt.Println(url, status{state: state, time: now})
+func LogState(state State, url string) {
+	now := time.Now()
+	fmt.Println(url, Status{State: state, time: now})
 }
