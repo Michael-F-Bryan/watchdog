@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -85,5 +85,5 @@ func Checksite(url string) Status {
 // LogState will log a struct of the state of the url, and other important info
 // Just prints the struct but later on could save to a database.
 func LogState(status Status, url string) {
-	fmt.Printf("%#v\n", status)
+	log.Printf("%v is %v", status.Name, status.State)
 }
