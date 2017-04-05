@@ -10,12 +10,31 @@ import (
 // State is an enum which represents the current state of a resource.
 type State int
 
+func (s State) String() string {
+	switch s {
+	case StateUp:
+		return "up"
+	case StateDown:
+		return "down"
+	case StateUnknown:
+		return "unknown"
+	default:
+		panic("Unknown state")
+	}
+}
+
 const (
-	STATE_UP = iota
-	STATE_DOWN
-	STATE_UNKNOWN
+	// StateUp represents a service which is currently up and responding.
+	StateUp = iota
+
+	// StateDown is a service which isn't responding.
+	StateDown
+
+	// StateUnknown means a service is in an unknown state.
+	StateUnknown
 )
 
+// Status represents the state of a service at a particular point in time.
 type Status struct {
 	State     State
 	Name      string
@@ -51,13 +70,13 @@ func Checksite(url string) Status {
 	respone, err := http.Get(url)
 	// TODO: inspect what error the page returns
 	if err != nil {
-		status.State = STATE_DOWN
+		status.State = StateDown
 		return status
 	}
 	if respone.StatusCode == 200 {
-		status.State = STATE_UP
+		status.State = StateUp
 	} else {
-		status.State = STATE_UNKNOWN
+		status.State = StateUnknown
 	}
 
 	return status
@@ -66,5 +85,5 @@ func Checksite(url string) Status {
 // LogState will log a struct of the state of the url, and other important info
 // Just prints the struct but later on could save to a database.
 func LogState(status Status, url string) {
-	fmt.Println(url, status)
+	fmt.Printf("%#v\n", status)
 }
