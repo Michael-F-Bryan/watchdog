@@ -32,6 +32,9 @@ const (
 
 	// StateUnknown means a service is in an unknown state.
 	StateUnknown
+
+    // Time limit allowed before timeout in seconds
+    timeout = time.Duration(10 * time.Second)
 )
 
 // Status represents the state of a service at a particular point in time.
@@ -67,7 +70,11 @@ func check(url string, wg *sync.WaitGroup) {
 func Checksite(url string) Status {
 	status := Status{Name: url, Timestamp: time.Now()}
 
-	respone, err := http.Get(url)
+    client := http.Client{
+        Timeout: timeout,
+    }
+
+	respone, err := client.Get(url)
 	// TODO: inspect what error the page returns
 	if err != nil {
 		status.State = StateDown
