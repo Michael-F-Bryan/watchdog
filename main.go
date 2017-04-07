@@ -45,7 +45,7 @@ func main() {
 	// The urls that will be checked when run
 	urls := []string{
 		"http://134.7.57.175:8090/",
-		"www.curtinmotorsport.com",
+		"http://www.curtinmotorsport.com",
 	}
 	wg := sync.WaitGroup{}
 	for _, url := range urls {
@@ -71,13 +71,11 @@ func Checksite(url string) Status {
 	// TODO: inspect what error the page returns
 	if err != nil {
 		status.State = StateDown
-		return status
-	}
-	if respone.StatusCode == 200 {
-		status.State = StateUp
-	} else {
-		status.State = StateUnknown
-	}
+    } else if respone.StatusCode == 200 {
+        status.State = StateUp
+    } else {
+	    status.State = StateUnknown
+    }
 
 	return status
 }
