@@ -18,7 +18,8 @@ $ go build
 ```
 
 Now you can run the Watchdog Service,
-Be aware that you make sure the `\` or `/` is correct for your OS.
+Be aware that you make sure the `\\` or `/` is correct for your OS.
+
 ```bash
 .\watchdog
 ```
@@ -39,4 +40,14 @@ $ .\watchdog.exe -timeout=10
 or:
 ```bash
 go run main.go -timeout=10
+```
+
+
+## Testing
+
+At the moment the test suite is still largely incomplete, however you can run
+the tests using the following command:
+
+```bash
+$ go test
 ```
