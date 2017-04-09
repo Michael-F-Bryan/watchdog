@@ -1,11 +1,11 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 	"sync"
 	"time"
-    "flag"
 )
 
 // State is an enum which represents the current state of a resource.
@@ -36,7 +36,7 @@ const (
 )
 
 // Time before time out
-var timeout time.Duration = 10 * time.Second
+var timeout = flag.Duration("timeout", 10*time.Second, "Timeout in seconds")
 
 // Status represents the state of a service at a particular point in time.
 type Status struct {
@@ -46,11 +46,8 @@ type Status struct {
 }
 
 func main() {
-    var timeoutSec int
-    // Flag for time limit allowed before timeout of connection
-    flag.IntVar(&timeoutSec, "timeout", 10 , "Timeout in seconds")
-    flag.Parse()
-    timeout = time.Duration(timeoutSec) * time.Second
+	flag.Parse()
+
 	// The urls that will be checked when run
 	urls := []string{
 		"http://134.7.57.175:8090/",
@@ -76,19 +73,19 @@ func check(url string, wg *sync.WaitGroup) {
 func Checksite(url string) Status {
 	status := Status{Name: url, Timestamp: time.Now()}
 
-    client := http.Client{
-        Timeout: timeout,
-    }
+	client := http.Client{
+		Timeout: *timeout,
+	}
 
 	respone, err := client.Get(url)
 	// TODO: inspect what error the page returns
 	if err != nil {
 		status.State = StateDown
-    } else if respone.StatusCode == 200 {
-        status.State = StateUp
-    } else {
-	    status.State = StateUnknown
-    }
+	} else if respone.StatusCode == 200 {
+		status.State = StateUp
+	} else {
+		status.State = StateUnknown
+	}
 
 	return status
 }
