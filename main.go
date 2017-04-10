@@ -45,43 +45,48 @@ type Status struct {
 	Timestamp time.Time
 }
 
+type WebTarget struct {
+    url string
+    timeout time.Duration
+}
+
 func main() {
 	flag.Parse()
 
 	// The urls that will be checked when run
-	urls := []string{
-		"http://134.7.57.175:8090/",
-		"http://www.curtinmotorsport.com",
+	targets := []WebTarget{
+		{"http://134.7.57.175:8090/", 10 * time.Second},
+		{"http://www.curtinmotorsport.com", 10 * time.Second},
 	}
 	wg := sync.WaitGroup{}
-	for _, url := range urls {
+	for _, target := range targets {
 		wg.Add(1)
-		go check(url, &wg)
+		go check(target, &wg)
 	}
 	wg.Wait()
 }
 
 // check will log a urls state and then tell the wait group that it is done.
-func check(url string, wg *sync.WaitGroup) {
+func check(target WebTarget, wg *sync.WaitGroup) {
 	defer wg.Done()
-	state := Checksite(url)
-	LogState(state, url)
+	state := target.Check()
+	LogState(state, target.url)
 }
 
-// Checksite will get a respsone and error from a url and return the status of it.
+// Checksite will get a response and error from a url and return the status of it.
 // If any errors are encountered, expect 200, it's assumed that the site is down.
-func Checksite(url string) Status {
-	status := Status{Name: url, Timestamp: time.Now()}
+func (w *WebTarget) Check() Status {
+	status := Status{Name: w.url, Timestamp: time.Now()}
 
 	client := http.Client{
 		Timeout: *timeout,
 	}
 
-	respsone, err := client.Get(url)
+	response, err := client.Get(w.url)
 	// TODO: inspect what error the page returns
 	if err != nil {
 		status.State = StateDown
-	} else if respsone.StatusCode == 200 {
+	} else if response.StatusCode == 200 {
 		status.State = StateUp
 	} else {
 		status.State = StateDown

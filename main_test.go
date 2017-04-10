@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+    "time"
 )
 
 func getHTTPServer(statusCode int) *httptest.Server {
@@ -29,8 +30,9 @@ func TestCheckWorkingSite(t *testing.T) {
 	for _, input := range inputs {
 		t.Log(input)
 		server := getHTTPServer(input.Status)
+        target := WebTarget{server.URL, 1*time.Second}
 
-		status := Checksite(server.URL)
+		status := target.Check()
 
 		if status.State != input.ShouldBe {
 			t.Errorf("Expected %v, got %v", input.ShouldBe, status.State)
