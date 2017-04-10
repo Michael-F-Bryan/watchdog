@@ -27,3 +27,14 @@ func TestCheckWorkingSite(t *testing.T) {
 		t.Errorf("Expected StateUp, got %v", status.State)
 	}
 }
+
+func TestCheckDownSite(t *testing.T) {
+	server := getHTTPServer(http.StatusNotFound)
+	defer server.Close()
+
+	status := Checksite(server.URL)
+
+	if status.State != StateDown {
+		t.Errorf("Expected StateDown, got %v", status.State)
+    }
+}

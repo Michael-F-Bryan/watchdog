@@ -68,7 +68,7 @@ func check(url string, wg *sync.WaitGroup) {
 	LogState(state, url)
 }
 
-// Checksite will get a respone and error from a url and return the status of it.
+// Checksite will get a respsone and error from a url and return the status of it.
 // If any errors are encountered, expect 200, it's assumed that the site is down.
 func Checksite(url string) Status {
 	status := Status{Name: url, Timestamp: time.Now()}
@@ -77,14 +77,14 @@ func Checksite(url string) Status {
 		Timeout: *timeout,
 	}
 
-	respone, err := client.Get(url)
+	respsone, err := client.Get(url)
 	// TODO: inspect what error the page returns
 	if err != nil {
 		status.State = StateDown
-	} else if respone.StatusCode == 200 {
+	} else if respsone.StatusCode == 200 {
 		status.State = StateUp
 	} else {
-		status.State = StateUnknown
+		status.State = StateDown
 	}
 
 	return status
