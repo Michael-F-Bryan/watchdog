@@ -30,7 +30,6 @@ Be aware that you make sure the `\\` or `/` is correct for your OS.
 
 Can be used to change the amount of time before the service check, will timeout.
 This amount of time is in seconds, with the default being 10 seconds.
-
 This effects all service checks.
 
 Usage:

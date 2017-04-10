@@ -41,14 +41,14 @@ var timeout = flag.Duration("timeout", 10*time.Second, "Timeout in seconds")
 // Status represents the state of a service at a particular point in time.
 type Status struct {
 	State     State
-	Target *WebTarget
+	Target    *WebTarget
 	Timestamp time.Time
 }
 
 // WebTarget represents a service to be checked.
 type WebTarget struct {
-    Url string
-    Timeout time.Duration
+	Url     string
+	Timeout time.Duration
 }
 
 func main() {
