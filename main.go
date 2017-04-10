@@ -41,13 +41,14 @@ var timeout = flag.Duration("timeout", 10*time.Second, "Timeout in seconds")
 // Status represents the state of a service at a particular point in time.
 type Status struct {
 	State     State
-	Name      string
+	Target *WebTarget
 	Timestamp time.Time
 }
 
+// WebTarget represents a service to be checked.
 type WebTarget struct {
-    url string
-    timeout time.Duration
+    Url string
+    Timeout time.Duration
 }
 
 func main() {
@@ -70,19 +71,19 @@ func main() {
 func check(target WebTarget, wg *sync.WaitGroup) {
 	defer wg.Done()
 	state := target.Check()
-	LogState(state, target.url)
+	LogState(state)
 }
 
 // Checksite will get a response and error from a url and return the status of it.
 // If any errors are encountered, expect 200, it's assumed that the site is down.
 func (w *WebTarget) Check() Status {
-	status := Status{Name: w.url, Timestamp: time.Now()}
+	status := Status{Target: w, Timestamp: time.Now()}
 
 	client := http.Client{
 		Timeout: *timeout,
 	}
 
-	response, err := client.Get(w.url)
+	response, err := client.Get(w.Url)
 	// TODO: inspect what error the page returns
 	if err != nil {
 		status.State = StateDown
@@ -97,6 +98,6 @@ func (w *WebTarget) Check() Status {
 
 // LogState will log a struct of the state of the url, and other important info
 // Just prints the struct but later on could save to a database.
-func LogState(status Status, url string) {
-	log.Printf("%v is %v", status.Name, status.State)
+func LogState(status Status) {
+	log.Printf("%v is %v", status.Target.Url, status.State)
 }
