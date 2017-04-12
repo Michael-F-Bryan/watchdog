@@ -41,6 +41,8 @@ func TestSiteCheck(t *testing.T) {
 	}
 }
 
+// TestDown starts up a web server on the local machine then makes sure the
+// `Checksite` function shows that it's down when given an empty GET request
 func TestDown(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {}))
@@ -52,5 +54,26 @@ func TestDown(t *testing.T) {
 
 	if Status.State != StateDown {
 		t.Errorf("Expected StateDown, got %v", Status.State)
+	}
+}
+
+// TestState checks the 3 outcomes of (s State), expect for default
+func TestState(t *testing.T) {
+	inputs := []struct {
+		State    State
+		ShouldBe string
+	}{
+		{StateUp, "up"},
+		{StateDown, "down"},
+		{StateUnknown, "unknown"},
+	}
+
+	for _, input := range inputs {
+		t.Log(input)
+		stateStr := State.String(input.State)
+
+		if stateStr != input.ShouldBe {
+			t.Errorf("Expect %v, but got %v", input.ShouldBe, stateStr)
+		}
 	}
 }
