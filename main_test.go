@@ -35,7 +35,7 @@ func TestSiteCheck(t *testing.T) {
 		status := target.Check()
 
 		if status.State != input.ShouldBe {
-			t.Errorf("Expected %v, got %v", input.ShouldBe, status.State)
+			t.Errorf("Expected %v, but got %v", input.ShouldBe, status.State)
 		}
 		server.Close()
 	}
@@ -53,7 +53,7 @@ func TestDown(t *testing.T) {
 	Status := target.Check()
 
 	if Status.State != StateDown {
-		t.Errorf("Expected StateDown, got %v", Status.State)
+		t.Errorf("Expected StateDown, but got %v", Status.State)
 	}
 }
 
@@ -66,10 +66,16 @@ func TestState(t *testing.T) {
 		{StateUp, "up"},
 		{StateDown, "down"},
 		{StateUnknown, "unknown"},
+		{NullState, "%!v(PANIC=Unknown state)"},
 	}
 
 	for _, input := range inputs {
 		t.Log(input)
+		defer func() {
+			if r := recover(); r != nil {
+			}
+		}()
+
 		stateStr := State.String(input.State)
 
 		if stateStr != input.ShouldBe {

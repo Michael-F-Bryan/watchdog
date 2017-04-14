@@ -33,6 +33,9 @@ const (
 
 	// StateUnknown means a service is in an unknown state.
 	StateUnknown
+
+	// NullState is when a state is unknown
+	NullState
 )
 
 // Time before time out
