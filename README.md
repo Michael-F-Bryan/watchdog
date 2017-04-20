@@ -18,12 +18,16 @@ $ go build
 ```
 
 Now you can run the Watchdog Service,
-Be aware that you make sure the `\\` or `/` is correct for your OS.
+Be aware that you make sure the `\` or `/` is correct for your OS.
 
 ```bash
 .\watchdog
 ```
 
+You will also need go yaml
+```bash
+$ go get gopkg.in/yaml.v2
+```
 ## Flags
 
 ### timeout

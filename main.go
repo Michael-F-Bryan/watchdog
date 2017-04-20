@@ -2,10 +2,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"sync"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 // State is an enum which represents the current state of a resource.
@@ -33,9 +37,6 @@ const (
 
 	// StateUnknown means a service is in an unknown state.
 	StateUnknown
-
-	// NullState is when a state is unknown
-	NullState
 )
 
 // Time before time out
@@ -54,14 +55,38 @@ type WebTarget struct {
 	Timeout time.Duration
 }
 
+type conf struct {
+	WebTarget []struct {
+		URL     string        `yaml:"cmt"`
+		Timeout time.Duration `yaml:"con"`
+	}
+}
+
+func (c *conf) getConfig() *conf {
+
+	yamlFile, err := ioutil.ReadFile("config.yaml")
+	if err != nil {
+		log.Printf("yamlFile Get err: %v", err)
+	}
+	err = yaml.Unmarshal(yamlFile, c)
+	if err != nil {
+		log.Fatalf("Unmarshal err: %v", err)
+	}
+	return c
+}
+
 func main() {
 	flag.Parse()
 
+	var c conf
+	targets := c.getConfig()
+	fmt.Println(c)
+
 	// The urls that will be checked when run
-	targets := []WebTarget{
-		{"http://134.7.57.175:8090/", 10 * time.Second},
-		{"http://www.curtinmotorsport.com", 10 * time.Second},
-	}
+	//targets := []WebTarget{
+	//	{"http://134.7.57.175:8090/", 10 * time.Second},
+	//	{"http://www.curtinmotorsport.com", 10 * time.Second},
+	//}
 	wg := sync.WaitGroup{}
 	for _, target := range targets {
 		wg.Add(1)

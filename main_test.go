@@ -66,7 +66,6 @@ func TestState(t *testing.T) {
 		{StateUp, "up"},
 		{StateDown, "down"},
 		{StateUnknown, "unknown"},
-		{NullState, "%!v(PANIC=Unknown state)"},
 	}
 
 	for _, input := range inputs {
