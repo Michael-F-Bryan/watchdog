@@ -51,7 +51,8 @@ type Status struct {
 
 // WebTarget represents a service to be checked.
 type WebTarget struct {
-	Url     string
+	Name    string
+	URL     string
 	Timeout time.Duration
 }
 
@@ -79,14 +80,14 @@ func main() {
 	flag.Parse()
 
 	var c conf
-	targets := c.getConfig()
+	//targets := c.getConfig()
 	fmt.Println(c)
 
-	// The urls that will be checked when run
-	//targets := []WebTarget{
-	//	{"http://134.7.57.175:8090/", 10 * time.Second},
-	//	{"http://www.curtinmotorsport.com", 10 * time.Second},
-	//}
+	// The URLs that will be checked when run
+	targets := []WebTarget{
+		{Name: "ConfLuence", URL: "http://134.7.57.175:8090/", Timeout: 10 * time.Second},
+		{Name: "CMT", URL: "http://www.curtinmotorsport.com", Timeout: 10 * time.Second},
+	}
 	wg := sync.WaitGroup{}
 	for _, target := range targets {
 		wg.Add(1)
@@ -95,14 +96,14 @@ func main() {
 	wg.Wait()
 }
 
-// check will log a urls state and then tell the wait group that it is done.
+// check will log a URLs state and then tell the wait group that it is done.
 func check(target WebTarget, wg *sync.WaitGroup) {
 	defer wg.Done()
 	state := target.Check()
 	LogState(state)
 }
 
-// Checksite will get a response and error from a url and return the status of it.
+// Checksite will get a response and error from a URL and return the status of it.
 // If any errors are encountered, expect 200, it's assumed that the site is down.
 func (w *WebTarget) Check() Status {
 	status := Status{Target: w, Timestamp: time.Now()}
@@ -111,7 +112,7 @@ func (w *WebTarget) Check() Status {
 		Timeout: *timeout,
 	}
 
-	response, err := client.Get(w.Url)
+	response, err := client.Get(w.URL)
 	// TODO: inspect what error the page returns
 	if err != nil {
 		status.State = StateDown
@@ -124,8 +125,8 @@ func (w *WebTarget) Check() Status {
 	return status
 }
 
-// LogState will log a struct of the state of the url, and other important info
+// LogState will log a struct of the state of the URL, and other important info
 // Just prints the struct but later on could save to a database.
 func LogState(status Status) {
-	log.Printf("%v is %v", status.Target.Url, status.State)
+	log.Printf("%v is %v", status.Target.URL, status.State)
 }

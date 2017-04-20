@@ -30,7 +30,7 @@ func TestSiteCheck(t *testing.T) {
 	for _, input := range inputs {
 		t.Log(input)
 		server := getHTTPServer(input.Status)
-		target := WebTarget{server.URL, 1 * time.Second}
+		target := WebTarget{URL: server.URL, Timeout: 1 * time.Second}
 
 		status := target.Check()
 
@@ -47,7 +47,7 @@ func TestDown(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {}))
 
-	target := WebTarget{server.URL, 1 * time.Millisecond}
+	target := WebTarget{URL: server.URL, Timeout: 1 * time.Second}
 
 	server.Close()
 	Status := target.Check()
