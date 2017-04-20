@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io"
 	"io/ioutil"
 	"time"
@@ -22,13 +23,29 @@ func (t tempTarget) toTarget() WebTarget {
 	}
 }
 
-func ParseConfig(reader io.Reader) ([]tempTarget, error) {
+func ParseConfig(reader io.Reader) ([]*tempTarget, error) {
 	data, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
-	var targets []tempTarget
+	var targets []*tempTarget
 
 	err = yaml.Unmarshal(data, &targets)
-	return targets, err
+	if err != nil {
+		return nil, err
+	}
+
+	// Go through the targets and make sure they all have a name and URL
+	for _, target := range targets {
+		if target.Name == "" || target.URL == "" {
+			return nil, errors.New("Missing required fields")
+		}
+
+		// default timeout
+		if target.Timeout == 0 {
+			target.Timeout = 5
+		}
+	}
+
+	return targets, nil
 }
