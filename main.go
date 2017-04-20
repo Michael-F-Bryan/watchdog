@@ -1,15 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"sync"
 	"time"
-
-	"gopkg.in/yaml.v2"
 )
 
 // State is an enum which represents the current state of a resource.
@@ -41,6 +39,23 @@ const (
 
 // Time before time out
 var timeout = flag.Duration("timeout", 10*time.Second, "Timeout in seconds")
+var configFile = flag.String("config", "cfg.yaml", "The configuration file")
+
+func main() {
+	flag.Parse()
+
+	targets, err := getConfig(*configFile)
+	if err != nil {
+		log.Fatalf("Error parsing the config file: %v", err)
+	}
+
+	wg := sync.WaitGroup{}
+	for _, target := range targets {
+		wg.Add(1)
+		go check(target, &wg)
+	}
+	wg.Wait()
+}
 
 // Status represents the state of a service at a particular point in time.
 type Status struct {
@@ -56,44 +71,23 @@ type WebTarget struct {
 	Timeout time.Duration
 }
 
-type conf struct {
-	WebTarget []struct {
-		URL     string        `yaml:"cmt"`
-		Timeout time.Duration `yaml:"con"`
-	}
-}
-
-func (c *conf) getConfig() *conf {
-
-	yamlFile, err := ioutil.ReadFile("config.yaml")
+func getConfig(filename string) ([]WebTarget, error) {
+	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		log.Printf("yamlFile Get err: %v", err)
+		return nil, err
 	}
-	err = yaml.Unmarshal(yamlFile, c)
+
+	targets, err := ParseConfig(bytes.NewReader(data))
 	if err != nil {
-		log.Fatalf("Unmarshal err: %v", err)
+		return nil, err
 	}
-	return c
-}
 
-func main() {
-	flag.Parse()
-
-	var c conf
-	//targets := c.getConfig()
-	fmt.Println(c)
-
-	// The URLs that will be checked when run
-	targets := []WebTarget{
-		{Name: "ConfLuence", URL: "http://134.7.57.175:8090/", Timeout: 10 * time.Second},
-		{Name: "CMT", URL: "http://www.curtinmotorsport.com", Timeout: 10 * time.Second},
-	}
-	wg := sync.WaitGroup{}
+	webTargets := make([]WebTarget, 0)
 	for _, target := range targets {
-		wg.Add(1)
-		go check(target, &wg)
+		webTargets = append(webTargets, target.toTarget())
 	}
-	wg.Wait()
+
+	return webTargets, nil
 }
 
 // check will log a URLs state and then tell the wait group that it is done.
