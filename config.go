@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"time"
 
-	"gopkg.in/yaml.v2"
+	"github.com/go-yaml/yaml"
 )
 
 type tempTarget struct {
@@ -14,7 +14,7 @@ type tempTarget struct {
 	Timeout int    `yaml:"timeout"`
 }
 
-func (t tempTarget) ToTarget() WebTarget {
+func (t tempTarget) toTarget() WebTarget {
 	return WebTarget{
 		Name:    t.Name,
 		URL:     t.URL,

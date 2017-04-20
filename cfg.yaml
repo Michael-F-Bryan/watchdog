@@ -1,0 +1,8 @@
+# The default config file
+- name: Confluence
+  url: http://134.7.57.175:8090/
+  timeout: 5
+
+- name: Website
+  url: http://curtinmotorsport.com/
+  timeout: 10
